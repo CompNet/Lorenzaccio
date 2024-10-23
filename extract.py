@@ -64,9 +64,6 @@ LORENZACCIO_CHAR_ALIASES = {
     "corsi": {"Corsi"},
     "come": {"Côme", "Côme de Médicis"},
 }
-# LORENZACCIO_CHAR_ALIASES = {
-#     key: case_variations(aliases) for key, aliases in LORENZACCIO_CHAR_ALIASES.items()
-# }
 
 
 @dataclass
