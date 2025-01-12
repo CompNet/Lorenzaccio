@@ -1,5 +1,5 @@
 from typing import Dict, Tuple, Optional, Callable
-import argparse, math
+import argparse, math, os
 import pathlib as pl
 import igraph as ig
 import networkx as nx
@@ -9,7 +9,7 @@ from extract import extract_from_tei, group_minor_characters_
 from renard.graph_utils import cumulative_graph, graph_with_names
 from renard.pipeline.character_unification import Character
 
-LANG_TO_NAMESTYLE = {"fra": None, "eng": eng_name_style}
+LANG_TO_NAMESTYLE = {"fra": "most_frequent", "eng": eng_name_style}
 
 
 def pplot_graph(
@@ -32,10 +32,10 @@ def pplot_graph(
         G,
         layout,
         ax=ax,
-        edge_color=["lightblue" if e[0] != e[1] else "red" for e in G.edges],
+        edge_color=["royalblue" if e[0] != e[1] else "red" for e in G.edges],
         connectionstyle="arc3,rad=0.2" if isinstance(G, nx.DiGraph) else "arc3",
         width=[1 + math.log(d["weight"]) for _, _, d in G.edges.data()],
-        alpha=0.7,
+        alpha=0.5,
     )
 
     nx.draw_networkx_labels(
@@ -103,28 +103,47 @@ if __name__ == "__main__":
         G_conversation, name_style=LANG_TO_NAMESTYLE[args.lang]
     )
 
-    fig = plt.figure(layout="constrained", figsize=(14, 12))
-    gs = fig.add_gridspec(2, 4)
-    ax_co_occurrence = fig.add_subplot(gs[0, 1:3])
-    if args.lang == "eng":
-        ax_co_occurrence.set_title("Co-occurrence network (a)")
-    else:
-        ax_co_occurrence.set_title("Graphe de co-occurrence (a)")
-    ax_mention = fig.add_subplot(gs[1, 0:2])
-    if args.lang == "eng":
-        ax_mention.set_title("Mention network (b)")
-    else:
-        ax_mention.set_title("Graphe de mention (b)")
-
-    ax_conversation = fig.add_subplot(gs[1, 2:4])
-    if args.lang == "eng":
-        ax_conversation.set_title("Conversational network (c)")
-    else:
-        ax_conversation.set_title("Graphe conversationnel (c)")
-    pplot_graph(G_co_occurrence, layout, ax=ax_co_occurrence)
-    pplot_graph(G_mention, layout, ax=ax_mention)
-    pplot_graph(G_conversation, layout, ax=ax_conversation)
     if args.output_dir:
-        plt.savefig(args.output_dir)
+        x_values, y_values = zip(*layout.values())
+        x_max = max(x_values)
+        x_min = min(x_values)
+        margin = (x_max - x_min) * 0.1
+        os.makedirs(args.output_dir, exist_ok=True)
+        plt.figure(figsize=(6, 5))
+        pplot_graph(G_co_occurrence, layout)
+        plt.tight_layout()
+        plt.xlim(x_min - margin, x_max + margin)
+        plt.savefig(f"{args.output_dir}/co_occurrence.pdf")
+        plt.clf()
+        pplot_graph(G_mention, layout)
+        plt.tight_layout()
+        plt.xlim(x_min - margin, x_max + margin)
+        plt.savefig(f"{args.output_dir}/mention.pdf")
+        plt.clf()
+        pplot_graph(G_conversation, layout)
+        plt.tight_layout()
+        plt.xlim(x_min - margin, x_max + margin)
+        plt.savefig(f"{args.output_dir}/conversation.pdf")
     else:
+        fig = plt.figure(layout="constrained", figsize=(14, 12))
+        gs = fig.add_gridspec(2, 4)
+        ax_co_occurrence = fig.add_subplot(gs[0, 1:3])
+        if args.lang == "eng":
+            ax_co_occurrence.set_title("Co-occurrence network (a)")
+        else:
+            ax_co_occurrence.set_title("Graphe de co-occurrence (a)")
+        ax_mention = fig.add_subplot(gs[1, 0:2])
+        if args.lang == "eng":
+            ax_mention.set_title("Mention network (b)")
+        else:
+            ax_mention.set_title("Graphe de mention (b)")
+
+        ax_conversation = fig.add_subplot(gs[1, 2:4])
+        if args.lang == "eng":
+            ax_conversation.set_title("Conversational network (c)")
+        else:
+            ax_conversation.set_title("Graphe conversationnel (c)")
+        pplot_graph(G_co_occurrence, layout, ax=ax_co_occurrence)
+        pplot_graph(G_mention, layout, ax=ax_mention)
+        pplot_graph(G_conversation, layout, ax=ax_conversation)
         plt.show()

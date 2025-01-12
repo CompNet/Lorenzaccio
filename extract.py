@@ -28,7 +28,8 @@ LORENZACCIO_CHAR_ALIASES = {
     "giomo": {"Giomo"},
     "maffio": {"Maffio"},
     "l-orfevre": {"L'Orfevre", "Mondella"},
-    "le-marchand-de-soieries": {"Le Marchand de Soieries", "Le Marchand"},
+    "le-marchand-de-soieries": {"Le Marchand de Soieries"},
+    "le-marchand": {"Le Marchand"},
     "le-provediteur": {
         "Le Provediteur",
         "Roberto Corsini",
