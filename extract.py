@@ -446,7 +446,12 @@ def delete_character_(out: PipelineState, name: str):
     if character is None:
         raise ValueError(f"unkown character for name: {character}")
     out.characters.remove(character)
-    for G in out.character_network:
+    graphs = (
+        out.character_network
+        if isinstance(out.character_network, list)
+        else [out.character_network]
+    )
+    for G in graphs:
         try:
             G.remove_node(character)
         except nx.exception.NetworkXError:
@@ -479,7 +484,11 @@ def merge_characters_(
         ),
     )
 
-    for G in out.character_network:
+    for G in (
+        out.character_network
+        if isinstance(out.character_network, list)
+        else [out.character_network]
+    ):
 
         # NOTE: in_edge used by default for graph_type == "co-occurrence"
         in_edges = {}  # { neighbor => weight }
